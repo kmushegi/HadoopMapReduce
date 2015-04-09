@@ -40,29 +40,46 @@ public class ClickThru extends Configured implements Tool {
       		System.exit(1);
 		}
 
+		jobDriver1();
+    	return jobDriver2();
+	}
+
+	public int jobDriver1() throws Exception{
 		Configuration conf = getConf();
 
-		Job job = new Job(conf,"ClickThrough Rate");
+		Job job = new Job(conf,"Impressions Unifier");
 		job.setJarByClass(ClickThru.class);
 
-		job.setMapperClass(ClickThru.IdentityMapper.class);
-		job.setReducerClass(ClickThru.IdentityReducer.class);
+		job.setMapperClass(ClickThru.ImpressionsMapper.class);
+		job.setReducerClass(ClickThru.ImpressionsReducer.class);
 
-		Path[] paths = new Path[args.length-1];
-
-		for(int i = 0; i<args.length-1; i++){
-      		paths[i] = new Path(args[i]);
-    	}
-
-    	FileInputFormat.setInputPaths(job, paths);
+    	FileInputFormat.setInputPath(job, paths);
     	FileOutputFormat.setOutputPath(job, new Path(args[args.length-1]));
 
     	job.setOutputKeyClass(Text.class);
     	job.setOutputValeClass(Text.class);
 
     	return job.waitForCompletion(true) ? 0 : 1;
-	}
 
+	}
+	public int jobDriver2() throws Exception{
+		Configuration conf = getConf();
+
+		Job job = new Job(conf,"Impressions Unifier");
+		job.setJarByClass(ClickThru.class);
+
+		job.setMapperClass(ClickThru.ClicksMapper.class);
+		job.setReducerClass(ClickThru.ClicksReducer.class);
+
+    	FileInputFormat.setInputPath(job, paths);
+    	FileOutputFormat.setOutputPath(job, new Path(args[args.length-1]));
+
+    	job.setOutputKeyClass(Text.class);
+    	job.setOutputValeClass(Text.class);
+
+    	return job.waitForCompletion(true) ? 0 : 1;
+
+	}
 	//map [impression ID, url, adID] key to either 0 (impressions collection) or 1 (clicks collection) val
 	public static class ImpressionsMapper extends Mapper<LongWritable,Text,Text,Text> {
 
