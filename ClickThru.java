@@ -181,11 +181,11 @@ public class ClickThru extends Configured implements Tool {
 				int totalClicks = 0;
 				for(Text value : values){
 					totalImpressions++;
-					totalClicks += Strings.Atoi(value.toString());
+					totalClicks += Integer.parseInt(value.toString());
 				}
 				Text clickThroughRate = new Text();
 	       		clickThroughRate.set(Strings.Itoa(totalClicks/totalImpressions));
-	        	context.write(key, documentList);
+	        	context.write(key, clickThroughRate);
 		}
 
 	}
