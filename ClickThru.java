@@ -117,6 +117,8 @@ public class ClickThru extends Configured implements Tool {
 		@Override
 		public void reduce(Text key, Iterable<Text> values, Context contect)) 
 							throws IOException, InterruptedException {
+
+				
 				/*
 				impTotal = 0
 				String url
