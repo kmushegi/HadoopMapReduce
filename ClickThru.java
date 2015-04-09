@@ -17,11 +17,12 @@ import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import org.apache.hadoop.mapreduce.InputSplit;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.Map;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import java.land.*;
+import java.lang.*;
 
 public class ClickThru extends Configured implements Tool {
 
@@ -69,8 +70,29 @@ public class ClickThru extends Configured implements Tool {
 		@Override
 		public void map(LongWritable key, Text val, Context context) 
 							throws IOException, InterruptedException {
-				
 
+			String[] logEntries = val.toString().split("0");
+
+			JSONParser parser = new JSONParser();
+			StringBuilder parsedData = new StringBuilder();
+
+			String impressionId;
+			String referrer;
+			String adId;
+
+
+			try {
+				JSONObject jsnObj = new JSONObject(val.toString());
+				impressionsId = (String)jsnObj.get("impressionId");
+				if(jsnObj.containsKey("referrer")) {
+					try {
+
+					}
+				}
+				String url (String)
+				String adId
+			}
+				
 		}
 
 	}
