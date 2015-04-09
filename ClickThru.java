@@ -41,8 +41,8 @@ public class ClickThru extends Configured implements Tool {
       		System.exit(1);
 		}
 
-		jobDriver1();
-    	return jobDriver2();
+		jobDriver1(args[0]);
+    	return jobDriver2(args[1]);
 	}
 
 	public void jobDriver1(String inputPath) throws Exception{
