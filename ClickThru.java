@@ -36,7 +36,7 @@ public class ClickThru extends Configured implements Tool {
 	public int run(String[] args) throws Exception {
 		if (args.length < 2) {
 			System.err.println("Error: Wrong number of parameters");
-      		System.err.println("Expected: [in] [out]");
+      		System.err.println("Expected: [impressions_merged] [clicks_merged] [out]");
       		System.exit(1);
 		}
 
