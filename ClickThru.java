@@ -1,0 +1,115 @@
+import java.io.IOException;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.MultipleInputs;
+import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
+import org.apache.hadoop.mapreduce.lib.input.FileSplit;
+import org.apache.hadoop.mapreduce.InputSplit;
+import java.io.IOException;
+import java.util.Iterator;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+import java.land.*;
+
+public class ClickThru extends Configured implements Tool {
+
+	public static void main(String[]  args) throws Exception {
+		int res = ToolRunner.run(new Configuration(), new ClickThru(), args);
+		System.exit(res);
+	}
+
+	@Override
+	public int run(String[] args) throws Exception {
+		if (args.length < 2) {
+			System.err.println("Error: Wrong number of parameters");
+      		System.err.println("Expected: [in] [out]");
+      		System.exit(1);
+		}
+
+		Configuration conf = getConf();
+
+		Job job = new Job(conf,"ClickThrough Rate");
+		job.setJarByClass(ClickThru.class);
+
+		job.setMapperClass(ClickThru.IdentityMapper.class);
+		job.setReducerClass(ClickThru.IdentityReducer.class);
+
+		Path[] paths = new Path[args.length-1];
+
+		for(int i = 0; i<args.length-1; i++){
+      		paths[i] = new Path(args[i]);
+    	}
+
+    	FileInputFormat.setInputPaths(job, paths);
+    	FileOutputFormat.setOutputPath(job, new Path(args[args.length-1]));
+
+    	job.setOutputKeyClass(Text.class);
+    	job.setOutputValeClass(Text.class);
+
+    	return job.waitForCompletion(true) ? 0 : 1;
+	}
+
+	//map [impression ID, url, adID] key to either 0 (impressions collection) or 1 (clicks collection) val
+	public static class ImpressionsMapper extends Mapper<LongWritable,Text,Text,Text> {
+
+		private Text wordText = new Text();
+
+		@Override
+		public void map(LongWritable key, Text val, Context context) 
+							throws IOException, InterruptedException {
+				
+
+		}
+
+	}
+	//add values of [impression ID, url, adID]: 0 +1 = 1 if clicked through, or just 0 if only impression
+	public static class ImpressionsReducer extends Reducer<Text,Text,Text,Text> {
+
+		@Override
+		public void reduce(Text key, Iterable<Text> values, Context contect)) 
+							throws IOException, InterruptedException {
+
+
+		}
+
+	}
+	//INPUT: [impressionID, url, adID] -> 0 or 1
+	//OUTPUT: [url, adID] -> 0 or 1
+	//map [url, adID] to – 0 +1 = 1 if clicked through, or just 0 if only impression
+	public static class ClicksMapper extends Mapper<LongWritable,Text,Text,Text> {
+
+		@Override
+		public void map(LongWritable key, Text val, Context context) 
+							throws IOException, InterruptedException {
+
+
+		}
+
+	}
+
+	//INPUT: [url, adID] -> vals[0,1,1...]
+	//OUTPUT: [url, adID] -> 1 count / totalCount = CTR
+	public static class ClicksReducer extends Reducer<Text,Text,Text,Text> {
+
+		@Override
+		public void reduce(Text key, Iterable<Text> values, Context contect)) 
+							throws IOException, InterruptedException {
+
+
+		}
+
+	}
+
+}
