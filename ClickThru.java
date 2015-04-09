@@ -120,19 +120,30 @@ public class ClickThru extends Configured implements Tool {
 		@Override
 		public void reduce(Text key, Iterable<Text> values, Context contect)) 
 							throws IOException, InterruptedException {
-
-
+				/*
+				impTotal = 0
+				String url
+				String adID
+				iterate over values
+					currentVal = split value by "\x1f"
+					if length of currentVal == 1
+						impTotal = 1
+					else
+						url = currentVal[0]
+						adID = currentVal[1]
+				output:
+				String key = url + "\x1f" + adID
+				String val = impTotal (or can this be an integer?)
+				*/
 		}
 
 	}
-	//INPUT: [impressionID, url, adID] -> 0 or 1
+	//INPUT: [url, adID] -> 0 or 1
 	//OUTPUT: [url, adID] -> 0 or 1
-	//map [url, adID] to – 0 +1 = 1 if clicked through, or just 0 if only impression
 	public static class ClicksMapper extends Mapper<LongWritable,Text,Text,Text> {
 
 		@Override
-		public void map(LongWritable key, Text val, Context context) 
-							throws IOException, InterruptedException {
+		public void map(LongWritable key, Text val, Context context) throws IOException, InterruptedException {
 
 
 		}
@@ -147,7 +158,7 @@ public class ClickThru extends Configured implements Tool {
 		public void reduce(Text key, Iterable<Text> values, Context contect)) 
 							throws IOException, InterruptedException {
 
-
+				
 		}
 
 	}
