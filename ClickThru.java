@@ -89,12 +89,12 @@ public class ClickThru extends Configured implements Tool {
 					try {
 						referrer = (String)jsnObj.get("referrer");
 						adId = (String).jsnObj.get("adId");
-						behavior = "0";
+						//behavior = "0";
 						parsedData.append(referrer);
 						parsedData.append("\x1f");
 						parsedData.append(adId);
-						parsedData.append("\x1f");
-						parsedData.append(behavior);
+						//parsedData.append("\x1f");
+						//parsedData.append(behavior);
 						outputValue.set(parsedData.toString());
 						context.write(outputKey,outputValue);
 					} catch (JSONException e) {
@@ -119,21 +119,23 @@ public class ClickThru extends Configured implements Tool {
 							throws IOException, InterruptedException {
 
 				
-				/*
-				impTotal = 0
-				String url
-				String adID
-				iterate over values
-					currentVal = split value by "\x1f"
-					if length of currentVal == 1
-						impTotal = 1
-					else
-						url = currentVal[0]
-						adID = currentVal[1]
-				output:
-				String key = url + "\x1f" + adID
-				String val = impTotal (or can this be an integer?)
-				*/
+				int impressionsTotal = 0;
+				String url;
+				String adId;
+				for(Text value : values) {
+					String splitInput[] = value.toString().split("(\x1f)");
+					if(splitInput.length() == 1) {
+						impressionsTotal = 1;
+					} else {
+						url = splitInput[0];
+						adId = splitInput[1];
+					}
+				}
+				String newKeyString = (url+"\x1f"+adId);
+				String val = Integer.toString(impressionsTotal);
+				Text newKey = new Text(newKeyString);
+				Text outputValue = new Text(val);
+				context.write(newKey,outputValue);
 		}
 
 	}
@@ -143,8 +145,7 @@ public class ClickThru extends Configured implements Tool {
 
 		@Override
 		public void map(LongWritable key, Text val, Context context) throws IOException, InterruptedException {
-
-
+			context.write(key,val);
 		}
 
 	}
