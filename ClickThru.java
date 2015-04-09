@@ -88,7 +88,7 @@ public class ClickThru extends Configured implements Tool {
 				if(jsnObj.containsKey("referrer")) {
 					try {
 						referrer = (String)jsnObj.get("referrer");
-						adId = (Strin).jsnObj.get("adId");
+						adId = (String).jsnObj.get("adId");
 						behavior = "0";
 						parsedData.append(referrer);
 						parsedData.append("\x1f");
@@ -105,9 +105,6 @@ public class ClickThru extends Configured implements Tool {
 					outputValue.set(behavior);
 					context.write(outputKey,outputValue);
 				}
-
-				String url (String)
-				String adId
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
