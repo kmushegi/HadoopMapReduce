@@ -45,7 +45,7 @@ public class ClickThru extends Configured implements Tool {
     	return jobDriver2();
 	}
 
-	public jobDriver1(String inputPath) throws Exception{
+	public void jobDriver1(String inputPath) throws Exception{
 		Configuration conf = getConf();
 
 		Job job = new Job(conf,"Impressions Unifier");
@@ -61,9 +61,10 @@ public class ClickThru extends Configured implements Tool {
     	job.setOutputValeClass(Text.class);
 
     	job.waitForCompletion(true);
-    	return
+    	return;
 
 	}
+
 	public int jobDriver2(String outputPath) throws Exception{
 		Configuration conf = getConf();
 
@@ -74,7 +75,7 @@ public class ClickThru extends Configured implements Tool {
 		job.setReducerClass(ClickThru.ClicksReducer.class);
 
     	FileInputFormat.setInputPath(job, new Path(OUTPUT_PATH));
-    	FileOutputFormat.setOutputPath(job, new Path(outputPath);
+    	FileOutputFormat.setOutputPath(job, new Path(outputPath));
 
     	job.setOutputKeyClass(Text.class);
     	job.setOutputValeClass(Text.class);
@@ -110,7 +111,7 @@ public class ClickThru extends Configured implements Tool {
 						adId = (String).jsnObj.get("adId");
 						//behavior = "0";
 						parsedData.append(referrer);
-						parsedData.append("\x1f");
+						parsedData.append("\\x1f");
 						parsedData.append(adId);
 						//parsedData.append("\x1f");
 						//parsedData.append(behavior);
@@ -134,7 +135,7 @@ public class ClickThru extends Configured implements Tool {
 	public static class ImpressionsReducer extends Reducer<Text,Text,Text,Text> {
 
 		@Override
-		public void reduce(Text key, Iterable<Text> values, Context contect)) 
+		public void reduce(Text key, Iterable<Text> values, Context context) 
 							throws IOException, InterruptedException {
 
 				
@@ -142,7 +143,7 @@ public class ClickThru extends Configured implements Tool {
 				String url;
 				String adId;
 				for(Text value : values) {
-					String splitInput[] = value.toString().split("(\x1f)");
+					String splitInput[] = value.toString().split("(\\x1f)");
 					if(splitInput.length() == 1) {
 						impressionsTotal = 1;
 					} else {
@@ -150,7 +151,7 @@ public class ClickThru extends Configured implements Tool {
 						adId = splitInput[1];
 					}
 				}
-				String newKeyString = (url+"\x1f"+adId);
+				String newKeyString = (url+"\\x1f"+adId);
 				String val = Integer.toString(impressionsTotal);
 				Text newKey = new Text(newKeyString);
 				Text outputValue = new Text(val);
@@ -174,13 +175,13 @@ public class ClickThru extends Configured implements Tool {
 	public static class ClicksReducer extends Reducer<Text,Text,Text,Text> {
 
 		@Override
-		public void reduce(Text key, Iterable<Text> values, Context contect)) 
+		public void reduce(Text key, Iterable<Text> values, Context context)
 							throws IOException, InterruptedException {
-				int totalImpressions = 0
-				int totalClicks = 0
+				int totalImpressions = 0;
+				int totalClicks = 0;
 				for(Text value : values){
-					totalImpressions++
-					totalClicks += Strings.Atoi(value.toString())
+					totalImpressions++;
+					totalClicks += Strings.Atoi(value.toString());
 				}
 				Text clickThroughRate = new Text();
 	       		clickThroughRate.set(Strings.Itoa(totalClicks/totalImpressions));
