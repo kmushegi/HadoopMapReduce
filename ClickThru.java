@@ -18,11 +18,15 @@ import org.apache.hadoop.mapreduce.InputSplit;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
+import org.json.simple;
+/*
 import org.json.simple.*;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.json.simple.JSONException;
+*/
 import java.lang.*;
 
 public class ClickThru extends Configured implements Tool {
@@ -54,11 +58,11 @@ public class ClickThru extends Configured implements Tool {
 		job.setMapperClass(ClickThru.ImpressionsMapper.class);
 		job.setReducerClass(ClickThru.ImpressionsReducer.class);
 
-    	FileInputFormat.setInputPath(job, new Path(inputPath));
+    	FileInputFormat.addInputPath(job, new Path(inputPath));
     	FileOutputFormat.setOutputPath(job, new Path(OUTPUT_PATH));
 
     	job.setOutputKeyClass(Text.class);
-    	job.setOutputValeClass(Text.class);
+    	job.setOutputValueClass(Text.class);
 
     	job.waitForCompletion(true);
     	return;
@@ -74,11 +78,11 @@ public class ClickThru extends Configured implements Tool {
 		job.setMapperClass(ClickThru.ClicksMapper.class);
 		job.setReducerClass(ClickThru.ClicksReducer.class);
 
-    	FileInputFormat.setInputPath(job, new Path(OUTPUT_PATH));
+    	FileInputFormat.addInputPath(job, new Path(OUTPUT_PATH));
     	FileOutputFormat.setOutputPath(job, new Path(outputPath));
 
     	job.setOutputKeyClass(Text.class);
-    	job.setOutputValeClass(Text.class);
+    	job.setOutputValueClass(Text.class);
 
     	return job.waitForCompletion(true) ? 0 : 1;
 
@@ -103,12 +107,12 @@ public class ClickThru extends Configured implements Tool {
 
 			try {
 				JSONObject jsnObj = new JSONObject(val.toString());
-				impressionsId = (String)jsnObj.get("impressionId");
+				impressionId = (String)jsnObj.get("impressionId");
 				outputKey.set(impressionId);
 				if(jsnObj.containsKey("referrer")) {
 					try {
 						referrer = (String)jsnObj.get("referrer");
-						adId = (String).jsnObj.get("adId");
+						adId = (String)jsnObj.get("adId");
 						//behavior = "0";
 						parsedData.append(referrer);
 						parsedData.append("\\x1f");
@@ -144,7 +148,7 @@ public class ClickThru extends Configured implements Tool {
 				String adId;
 				for(Text value : values) {
 					String splitInput[] = value.toString().split("(\\x1f)");
-					if(splitInput.length() == 1) {
+					if(splitInput.length == 1) {
 						impressionsTotal = 1;
 					} else {
 						url = splitInput[0];
@@ -161,10 +165,10 @@ public class ClickThru extends Configured implements Tool {
 	}
 	//INPUT: [url, adID] -> 0 or 1
 	//OUTPUT: [url, adID] -> 0 or 1
-	public static class ClicksMapper extends Mapper<LongWritable,Text,Text,Text> {
+	public static class ClicksMapper extends Mapper<Text,Text,Text,Text> {
 
 		@Override
-		public void map(LongWritable key, Text val, Context context) throws IOException, InterruptedException {
+		public void map(Text key, Text val, Context context) throws IOException, InterruptedException {
 			context.write(key,val);
 		}
 
@@ -184,7 +188,7 @@ public class ClickThru extends Configured implements Tool {
 					totalClicks += Integer.parseInt(value.toString());
 				}
 				Text clickThroughRate = new Text();
-	       		clickThroughRate.set(Strings.Itoa(totalClicks/totalImpressions));
+	       		clickThroughRate.set(Integer.toString(totalClicks/totalImpressions));
 	        	context.write(key, clickThroughRate);
 		}
 
