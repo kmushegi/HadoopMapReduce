@@ -18,10 +18,9 @@ import org.apache.hadoop.mapreduce.InputSplit;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONException;
 import java.lang.*;
 
 public class ClickThru extends Configured implements Tool {
@@ -91,28 +90,34 @@ public class ClickThru extends Configured implements Tool {
 		public void map(LongWritable key, Text val, Context context) 
 							throws IOException, InterruptedException {
 
-			JSONParser parser = new JSONParser();
 			StringBuilder parsedData = new StringBuilder();
 
-			String impressionId;
+			String impressionId = null;
 			String referrer;
 			String adId;
 			String behavior;
 
-				JSONObject jsnObj = new JSONObject(val.toString());
-				impressionId = (String)jsnObj.get("impressionId");
+			JSONObject jsnObj = null;
+				try {
+					jsnObj = new JSONObject(val.toString());
+					impressionId = (String)jsnObj.get("impressionId");
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
 				outputKey.set(impressionId);
-				if(jsnObj.containsKey("referrer")) {
+				if(jsnObj.has("referrer")) {
+					try {
 						referrer = (String)jsnObj.get("referrer");
 						adId = (String)jsnObj.get("adId");
 						//behavior = "0";
 						parsedData.append(referrer);
 						parsedData.append("\\x1f");
 						parsedData.append(adId);
-						//parsedData.append("\x1f");
-						//parsedData.append(behavior);
 						outputValue.set(parsedData.toString());
 						context.write(outputKey,outputValue);
+					} catch (JSONException e) {
+						e.printStackTrace();
+					}	
 				} else {
 					behavior = "1";
 					outputValue.set(behavior);
@@ -130,8 +135,8 @@ public class ClickThru extends Configured implements Tool {
 
 				
 				int impressionsTotal = 0;
-				String url;
-				String adId;
+				String url = null;
+				String adId =null;
 				for(Text value : values) {
 					String splitInput[] = value.toString().split("(\\x1f)");
 					if(splitInput.length == 1) {
