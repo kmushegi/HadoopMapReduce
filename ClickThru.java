@@ -31,6 +31,7 @@ public class ClickThru extends Configured implements Tool {
 		int res = ToolRunner.run(new Configuration(), new ClickThru(), args);
 		System.exit(res);
 	}
+	private static final String OUTPUT_PATH = "merged_out";
 
 	@Override
 	public int run(String[] args) throws Exception {
@@ -44,7 +45,7 @@ public class ClickThru extends Configured implements Tool {
     	return jobDriver2();
 	}
 
-	public int jobDriver1() throws Exception{
+	public jobDriver1(String inputPath) throws Exception{
 		Configuration conf = getConf();
 
 		Job job = new Job(conf,"Impressions Unifier");
@@ -53,16 +54,17 @@ public class ClickThru extends Configured implements Tool {
 		job.setMapperClass(ClickThru.ImpressionsMapper.class);
 		job.setReducerClass(ClickThru.ImpressionsReducer.class);
 
-    	FileInputFormat.setInputPath(job, paths);
-    	FileOutputFormat.setOutputPath(job, new Path(args[args.length-1]));
+    	FileInputFormat.setInputPath(job, new Path(inputPath));
+    	FileOutputFormat.setOutputPath(job, new Path(OUTPUT_PATH));
 
     	job.setOutputKeyClass(Text.class);
     	job.setOutputValeClass(Text.class);
 
-    	return job.waitForCompletion(true) ? 0 : 1;
+    	job.waitForCompletion(true);
+    	return
 
 	}
-	public int jobDriver2() throws Exception{
+	public int jobDriver2(String outputPath) throws Exception{
 		Configuration conf = getConf();
 
 		Job job = new Job(conf,"Impressions Unifier");
@@ -71,8 +73,8 @@ public class ClickThru extends Configured implements Tool {
 		job.setMapperClass(ClickThru.ClicksMapper.class);
 		job.setReducerClass(ClickThru.ClicksReducer.class);
 
-    	FileInputFormat.setInputPath(job, paths);
-    	FileOutputFormat.setOutputPath(job, new Path(args[args.length-1]));
+    	FileInputFormat.setInputPath(job, new Path(OUTPUT_PATH));
+    	FileOutputFormat.setOutputPath(job, new Path(outputPath);
 
     	job.setOutputKeyClass(Text.class);
     	job.setOutputValeClass(Text.class);
