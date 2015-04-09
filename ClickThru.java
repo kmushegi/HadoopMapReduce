@@ -18,6 +18,7 @@ import org.apache.hadoop.mapreduce.InputSplit;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
+import org.json.simple.*;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -65,13 +66,12 @@ public class ClickThru extends Configured implements Tool {
 	//map [impression ID, url, adID] key to either 0 (impressions collection) or 1 (clicks collection) val
 	public static class ImpressionsMapper extends Mapper<LongWritable,Text,Text,Text> {
 
-		private Text wordText = new Text();
+		private Text outputKey = new Text();
+		private text outputValue = new Text();
 
 		@Override
 		public void map(LongWritable key, Text val, Context context) 
 							throws IOException, InterruptedException {
-
-			String[] logEntries = val.toString().split("0");
 
 			JSONParser parser = new JSONParser();
 			StringBuilder parsedData = new StringBuilder();
@@ -79,23 +79,41 @@ public class ClickThru extends Configured implements Tool {
 			String impressionId;
 			String referrer;
 			String adId;
-
+			String behavior;
 
 			try {
 				JSONObject jsnObj = new JSONObject(val.toString());
 				impressionsId = (String)jsnObj.get("impressionId");
+				outputKey.set(impressionId);
 				if(jsnObj.containsKey("referrer")) {
 					try {
-
+						referrer = (String)jsnObj.get("referrer");
+						adId = (Strin).jsnObj.get("adId");
+						behavior = "0";
+						parsedData.append(referrer);
+						parsedData.append("\x1f");
+						parsedData.append(adId);
+						parsedData.append("\x1f");
+						parsedData.append(behavior);
+						outputValue.set(parsedData.toString());
+						context.write(outputKey,outputValue);
+					} catch (JSONException e) {
+						e.printStackTrace();
 					}
+				} else {
+					behavior = "1";
+					outputValue.set(behavior);
+					context.write(outputKey,outputValue);
 				}
+
 				String url (String)
 				String adId
+			} catch (JSONException e) {
+				e.printStackTrace();
 			}
-				
 		}
-
 	}
+	
 	//add values of [impression ID, url, adID]: 0 +1 = 1 if clicked through, or just 0 if only impression
 	public static class ImpressionsReducer extends Reducer<Text,Text,Text,Text> {
 
