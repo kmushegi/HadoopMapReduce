@@ -67,7 +67,7 @@ public class ClickThru extends Configured implements Tool {
 	public static class ImpressionsMapper extends Mapper<LongWritable,Text,Text,Text> {
 
 		private Text outputKey = new Text();
-		private text outputValue = new Text();
+		private Text outputValue = new Text();
 
 		@Override
 		public void map(LongWritable key, Text val, Context context) 
