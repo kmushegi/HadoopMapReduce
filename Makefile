@@ -1,6 +1,6 @@
 PATH:=${JAVA_HOME}/bin:${PATH}
 HADOOP_PATH=/usr/local/hadoop
-NEW_CLASSPATH=${HADOOP_PATH}/*:${CLASSPATH}
+NEW_CLASSPATH=${HADOOP_PATH}/*:${CLASSPATH}:lib/json-simple-1.1.1.jar
 
 SRC = $(wildcard *.java) 
 

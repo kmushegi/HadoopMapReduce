@@ -18,15 +18,10 @@ import org.apache.hadoop.mapreduce.InputSplit;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
-import org.json.simple;
-/*
-import org.json.simple.*;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.json.simple.JSONException;
-*/
 import java.lang.*;
 
 public class ClickThru extends Configured implements Tool {
@@ -66,7 +61,6 @@ public class ClickThru extends Configured implements Tool {
 
     	job.waitForCompletion(true);
     	return;
-
 	}
 
 	public int jobDriver2(String outputPath) throws Exception{
@@ -105,12 +99,10 @@ public class ClickThru extends Configured implements Tool {
 			String adId;
 			String behavior;
 
-			try {
 				JSONObject jsnObj = new JSONObject(val.toString());
 				impressionId = (String)jsnObj.get("impressionId");
 				outputKey.set(impressionId);
 				if(jsnObj.containsKey("referrer")) {
-					try {
 						referrer = (String)jsnObj.get("referrer");
 						adId = (String)jsnObj.get("adId");
 						//behavior = "0";
@@ -121,17 +113,11 @@ public class ClickThru extends Configured implements Tool {
 						//parsedData.append(behavior);
 						outputValue.set(parsedData.toString());
 						context.write(outputKey,outputValue);
-					} catch (JSONException e) {
-						e.printStackTrace();
-					}
 				} else {
 					behavior = "1";
 					outputValue.set(behavior);
 					context.write(outputKey,outputValue);
 				}
-			} catch (JSONException e) {
-				e.printStackTrace();
-			}
 		}
 	}
 	
@@ -161,7 +147,6 @@ public class ClickThru extends Configured implements Tool {
 				Text outputValue = new Text(val);
 				context.write(newKey,outputValue);
 		}
-
 	}
 	//INPUT: [url, adID] -> 0 or 1
 	//OUTPUT: [url, adID] -> 0 or 1
@@ -171,7 +156,6 @@ public class ClickThru extends Configured implements Tool {
 		public void map(Text key, Text val, Context context) throws IOException, InterruptedException {
 			context.write(key,val);
 		}
-
 	}
 
 	//INPUT: [url, adID] -> vals[0,1,1...]
@@ -191,7 +175,5 @@ public class ClickThru extends Configured implements Tool {
 	       		clickThroughRate.set(Integer.toString(totalClicks/totalImpressions));
 	        	context.write(key, clickThroughRate);
 		}
-
 	}
-
 }
