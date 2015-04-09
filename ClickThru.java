@@ -36,7 +36,7 @@ public class ClickThru extends Configured implements Tool {
 	public int run(String[] args) throws Exception {
 		if (args.length < 2) {
 			System.err.println("Error: Wrong number of parameters");
-      		System.err.println("Expected: [in] [out]");
+      		System.err.println("Expected: [impressions_merged] [clicks_merged] [out]");
       		System.exit(1);
 		}
 
@@ -48,14 +48,18 @@ public class ClickThru extends Configured implements Tool {
 		job.setMapperClass(ClickThru.IdentityMapper.class);
 		job.setReducerClass(ClickThru.IdentityReducer.class);
 
+		/* 	
+		CODE THAT WAS USED FOR PROCESSING MULTIPLE TEXT FILES IN  INVERTEDINDEX
 		Path[] paths = new Path[args.length-1];
 
 		for(int i = 0; i<args.length-1; i++){
       		paths[i] = new Path(args[i]);
-    	}
+    	} 
+		END
+    	*/
 
-    	FileInputFormat.setInputPaths(job, paths);
-    	FileOutputFormat.setOutputPath(job, new Path(args[args.length-1]));
+    	FileInputFormat.addInputPath(job, new Path(args[0]));
+    	FileOutputFormat.addOutputPath(job, new Path(args[1]));
 
     	job.setOutputKeyClass(Text.class);
     	job.setOutputValeClass(Text.class);
