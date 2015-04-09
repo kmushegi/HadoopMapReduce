@@ -156,8 +156,15 @@ public class ClickThru extends Configured implements Tool {
 		@Override
 		public void reduce(Text key, Iterable<Text> values, Context contect)) 
 							throws IOException, InterruptedException {
-
-				
+				int totalImpressions = 0
+				int totalClicks = 0
+				for(Text value : values){
+					totalImpressions++
+					totalClicks += Strings.Atoi(value.toString())
+				}
+				Text clickThroughRate = new Text();
+	       		clickThroughRate.set(Strings.Itoa(totalClicks/totalImpressions));
+	        	context.write(key, documentList);
 		}
 
 	}
