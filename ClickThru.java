@@ -94,14 +94,19 @@ public class ClickThru extends Configured implements Tool {
 
 			StringBuilder parsedData = new StringBuilder();
 
+			//take the substring of the val from the { to the end }
+
+			String valueString = val.toString();
+			String jsnFormatString = valueString.substring(valueString.indexOf("{"));
+
 			String impressionId = null;
 			String referrer;
 			String adId;
 			String behavior;
 				JSONObject jsnObj;
 				try {
-					System.out.println("Value of String is: "+val.toString());
-					jsnObj = new JSONObject(val.toString());
+					System.out.println("Value of String is: "+jsnFormatString);
+					jsnObj = new JSONObject(jsnFormatString);
 					impressionId = (String)jsnObj.get("impressionId");
 				} catch (JSONException e) {
 					e.printStackTrace();
