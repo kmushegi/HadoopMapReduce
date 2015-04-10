@@ -29,6 +29,8 @@ public class ClickThru extends Configured implements Tool {
 		int res = ToolRunner.run(new Configuration(), new ClickThru(), args);
 		System.exit(res);
 	}
+	//this is causing an issue, because if the path (directory) already
+	//exists Hadoop will not let you run anything. need a work around
 	private static final String OUTPUT_PATH = "merged_out";
 
 	@Override
@@ -96,13 +98,14 @@ public class ClickThru extends Configured implements Tool {
 			String referrer;
 			String adId;
 			String behavior;
-
-			JSONObject jsnObj = null;
+				JSONObject jsnObj;
 				try {
+					System.out.println("Value of String is: "+val.toString());
 					jsnObj = new JSONObject(val.toString());
 					impressionId = (String)jsnObj.get("impressionId");
 				} catch (JSONException e) {
 					e.printStackTrace();
+					throw new IOException("json exception: "+e);
 				}
 				outputKey.set(impressionId);
 				if(jsnObj.has("referrer")) {
@@ -155,11 +158,13 @@ public class ClickThru extends Configured implements Tool {
 	}
 	//INPUT: [url, adID] -> 0 or 1
 	//OUTPUT: [url, adID] -> 0 or 1
-	public static class ClicksMapper extends Mapper<Text,Text,Text,Text> {
+	public static class ClicksMapper extends Mapper<LongWritable,Text,Text,Text> {
 
 		@Override
-		public void map(Text key, Text val, Context context) throws IOException, InterruptedException {
-			context.write(key,val);
+		public void map(LongWritable key, Text val, Context context) throws IOException, InterruptedException {
+			String tempString = key.toString();
+			Text newKey = new Text(tempString);
+			context.write(newKey,val);
 		}
 	}
 
