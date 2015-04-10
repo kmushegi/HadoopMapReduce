@@ -35,13 +35,15 @@ public class ClickThru extends Configured implements Tool {
 
 	@Override
 	public int run(String[] args) throws Exception {
-		if (args.length < 2) {
+		if (args.length < 3) {
 			System.err.println("Error: Wrong number of parameters");
       		System.err.println("Expected: [impressions_merged] [clicks_merged] [out]");
       		System.exit(1);
 		}
 
 		jobDriver1(args[0]);
+		//i think job2 should be taking args[2] as a parameter
+		//in fact almost convinced its the issue with paths
     	return jobDriver2(args[1]);
 	}
 
@@ -94,8 +96,8 @@ public class ClickThru extends Configured implements Tool {
 
 			StringBuilder parsedData = new StringBuilder();
 
-			//take the substring of the val from the { to the end }
-
+			//take the substring of the val from the { to the end so that we get
+			//a correct JSON String
 			String valueString = val.toString();
 			String jsnFormatString = valueString.substring(valueString.indexOf("{"));
 
@@ -117,7 +119,6 @@ public class ClickThru extends Configured implements Tool {
 					try {
 						referrer = (String)jsnObj.get("referrer");
 						adId = (String)jsnObj.get("adId");
-						//behavior = "0";
 						parsedData.append(referrer);
 						parsedData.append("\\x1f");
 						parsedData.append(adId);
