@@ -43,7 +43,7 @@ public class ClickThru extends Configured implements Tool {
 		jobDriver1(args);
 		//i think job2 should be taking args[2] as a parameter
 		//in fact almost convinced its the issue with paths
-    	return jobDriver2(args[1]);
+    	return jobDriver2(args[args.length-1]);
 	}
 
 	public void jobDriver1(String[] args) throws Exception{
@@ -55,7 +55,7 @@ public class ClickThru extends Configured implements Tool {
 		job.setMapperClass(ClickThru.ImpressionsMapper.class);
 		job.setReducerClass(ClickThru.ImpressionsReducer.class);
 
-		Path[] paths = new Path[args.length-1];
+		Path[] paths = new Path[args.length-2];
 	    for(int i=0; i<args.length-1; i++){
 	    	paths[i] = new Path(args[i]);
 	    }
