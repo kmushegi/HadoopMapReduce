@@ -57,7 +57,7 @@ public class ClickThru extends Configured implements Tool {
 
 		Path[] paths = new Path[args.length-1];
 	    for(int i=0; i<args.length-1; i++){
-	    	paths.add(new Path(args[i]))
+	    	paths.add(new Path(args[i]));
 	    }
 	    FileInputFormat.setInputPaths(job, paths);
     	// FileInputFormat.addInputPath(job, new Path(inputPath));
