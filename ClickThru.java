@@ -40,14 +40,13 @@ public class ClickThru extends Configured implements Tool {
       		System.err.println("Expected: [impressions_merged] [clicks_merged] [out]");
       		System.exit(1);
 		}
-
-		jobDriver1(args[0]);
+		jobDriver1(args);
 		//i think job2 should be taking args[2] as a parameter
 		//in fact almost convinced its the issue with paths
     	return jobDriver2(args[1]);
 	}
 
-	public void jobDriver1(String inputPath) throws Exception{
+	public void jobDriver1(String[] args) throws Exception{
 		Configuration conf = getConf();
 
 		Job job = new Job(conf,"Impressions Unifier");
@@ -56,7 +55,12 @@ public class ClickThru extends Configured implements Tool {
 		job.setMapperClass(ClickThru.ImpressionsMapper.class);
 		job.setReducerClass(ClickThru.ImpressionsReducer.class);
 
-    	FileInputFormat.addInputPath(job, new Path(inputPath));
+		Path[] paths = new Path[args.length-1];
+	    for(int i=0; i<args.length-1; i++){
+	    	paths.add(new Path(args[i]))
+	    }
+	    FileInputFormat.setInputPaths(job, paths);
+    	// FileInputFormat.addInputPath(job, new Path(inputPath));
     	FileOutputFormat.setOutputPath(job, new Path(OUTPUT_PATH));
 
     	job.setOutputKeyClass(Text.class);
