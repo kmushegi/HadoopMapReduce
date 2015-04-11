@@ -195,9 +195,10 @@ public class ClickThru extends Configured implements Tool {
 			// String tempString = key.toString();
 			// Text newKey = new Text(tempString);
 			String[] key_val = val.toString().split("\\x1e");
-			String doubleKey = key_val[0].split("\\x1f");
-			String key = (doubleKey[0] + ", " + doubleKey[1]);
-			context.write(outputKey.set(key),outputValue.set(key_val[1]));
+			// String[] doubleKey = key_val[0].split("\\x1f");
+			// String key = (doubleKey[0] + ", " + doubleKey[1]);
+			// String key = key_val[0].replaceAll("\\x1f", ", ");
+			context.write(outputKey.set(key_val[0].replaceAll("\\x1f", ", ")),outputValue.set(key_val[1]));
 		}
 	}
 
