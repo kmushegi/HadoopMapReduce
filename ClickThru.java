@@ -56,8 +56,8 @@ public class ClickThru extends Configured implements Tool {
 		job.setReducerClass(ClickThru.ImpressionsReducer.class);
 
 		Path[] inputPaths = new Path[2];
-		inputPaths[1] = new Path(impressions_merged);
-		inputPaths[2] = new Path(clicks_merged);
+		inputPaths[0] = new Path(impressions_merged);
+		inputPaths[1] = new Path(clicks_merged);
 	    FileInputFormat.setInputPaths(job, inputPaths);
     	// FileInputFormat.addInputPath(job, new Path(inputPath));
     	FileOutputFormat.setOutputPath(job, new Path(combined));
