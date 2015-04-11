@@ -138,7 +138,7 @@ public class ClickThru extends Configured implements Tool {
 						// parsedData.append(referrer);
 						// parsedData.append("\\x1f");
 						// parsedData.append(adId);
-						String oVStr = "{"+referrer+"\\x1f"+adId;
+						String oVStr = "{"+referrer+"/x1f"+adId;
 						outputValue.set(oVStr);
 						System.out.println("Mapper Output - key:"+impressionId + ", val:" + oVStr);
 					} catch (JSONException e) {
@@ -165,13 +165,13 @@ public class ClickThru extends Configured implements Tool {
 				for(Text value : values) {
 					String valueStr = value.toString();
 					System.out.println("valueStr: "+ valueStr);
-					if(value.toString().contains("\\x1f")){
+					if(value.toString().contains("/x1f")){
 						newKeyString = valueStr;
 					} else {
 						impressionsTotal = 1;
 					}
 				}
-				String keyWithValueString = (newKeyString+"\\x1e"+String.valueOf(impressionsTotal));
+				String keyWithValueString = (newKeyString+"/x1e"+String.valueOf(impressionsTotal));
 				// String newKeyString = (url+"\\x1f"+adId);
 				// String val = String.valueOf(impressionsTotal);
 				// Text newKey = new Text(newKeyString);
@@ -199,10 +199,10 @@ public class ClickThru extends Configured implements Tool {
 			// Text newKey = new Text(tempString);
 			// String valueStr = val.toString();
 			String valueString =  val.toString();
-			String parsedString = valueString.substring(valueString.indexOf("{"));
+			String parsedString = valueString.substring(valueString.indexOf("{")+1);
 
 			System.out.println("val: " + parsedString);
-			String[] key_val = parsedString.split("(\\x1f)|(\\x1e)");
+			String[] key_val = parsedString.split("(/x1f)|(/x1e)");
 			System.out.printf("key_val length: %d", key_val.length);
 			//should produce array 0 - referrer, 1 - adId, 2 - click/imp bool
 
