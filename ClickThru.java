@@ -229,8 +229,8 @@ public class ClickThru extends Configured implements Tool {
 		@Override
 		public void reduce(Text key, Iterable<Text> values, Context context)
 							throws IOException, InterruptedException {
-				float totalImpressions = 0.0;
-				float totalClicks = 0.0;
+				float totalImpressions = 0;
+				float totalClicks = 0;
 				for(Text value : values){
 					totalImpressions+= 1.0;
 					totalClicks += Float.parseFloat(value.toString());
