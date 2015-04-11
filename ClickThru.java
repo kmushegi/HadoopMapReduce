@@ -164,7 +164,7 @@ public class ClickThru extends Configured implements Tool {
 				String newKeyString = "";
 				for(Text value : values) {
 					String valueStr = value.toString();
-					if(value.toString().contains("(\\x1f)")){
+					if(value.toString().contains("\\x1f")){
 						newKeyString = valueStr;
 					} else {
 						impressionsTotal = 1;
