@@ -60,7 +60,7 @@ public class ClickThru extends Configured implements Tool {
 		inputPaths[2] = new Path(clicks_merged);
 	    FileInputFormat.setInputPaths(job, inputPaths);
     	// FileInputFormat.addInputPath(job, new Path(inputPath));
-    	FileOutputFormat.setOutputPath(job, new Path(combined_out));
+    	FileOutputFormat.setOutputPath(job, new Path(combined));
 
     	job.setOutputKeyClass(Text.class);
     	job.setOutputValueClass(Text.class);
@@ -119,20 +119,20 @@ public class ClickThru extends Configured implements Tool {
 					try {
 						String referrer = (String)jsnObj.get("referrer");
 						String adId = (String)jsnObj.get("adId");
-						val = (referrer+"\\x1f"+adId);
+						String val = (referrer+"\\x1f"+adId);
 						// parsedData.append(referrer);
 						// parsedData.append("\\x1f");
 						// parsedData.append(adId);
 						outputValue.set(val);
 						context.write(outputKey,outputValue);
-						System.out.println("Mapper Output - key:"+impressionID + ", val:" + val);
+						System.out.println("Mapper Output - key:"+impressionId + ", val:" + val);
 					} catch (JSONException e) {
 						e.printStackTrace();
 					}	
 				} else {
 					outputValue.set("1");
 					context.write(outputKey,outputValue);
-					System.out.println("Mapper Output - key:"+impressionID + ", val:1");
+					System.out.println("Mapper Output - key:"+impressionId + ", val:1");
 				}
 		}
 	}
