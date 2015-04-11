@@ -90,7 +90,7 @@ public class ClickThru extends Configured implements Tool {
 		job.setMapperClass(ClickThru.ClicksMapper.class);
 		job.setReducerClass(ClickThru.ClicksReducer.class);
 
-		FileInputFormat.setInputFormat
+		// FileInputFormat.setInputFormat
     	FileInputFormat.addInputPath(job, new Path(combined));
     	FileOutputFormat.setOutputPath(job, new Path(ctr_out));
 
@@ -168,12 +168,12 @@ public class ClickThru extends Configured implements Tool {
 						impressionsTotal = 1;
 					}
 				}
-				String keyWithValueString = (newKeyString+"\\x1e"+String.valueOf(impressionsTotal))
+				String keyWithValueString = (newKeyString+"\\x1e"+String.valueOf(impressionsTotal));
 				// String newKeyString = (url+"\\x1f"+adId);
 				// String val = String.valueOf(impressionsTotal);
 				// Text newKey = new Text(newKeyString);
 				// Text outputValue = new Text(val);
-				context.write(new Text(newKeyString),new Text(keyWithValueString);
+				context.write(new Text(newKeyString)),new Text(keyWithValueString);
 
 				// context.write(new Text(newKeyString),new Text(String.valueOf(impressionsTotal)));
 		}
