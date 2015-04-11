@@ -211,7 +211,7 @@ public class ClickThru extends Configured implements Tool {
 			// String key = key_val[0].replaceAll("\\x1f", ", ");
 			// String keyF = key_val[0].replaceAll("\\x1f", ", ");
 			// String valF = key_val[1];
-			String outputKey = key_val[0] + ", " + key_val[1];
+			String outputKey = key_val[0] + ", " + key_val[1].substring(1);
 			String outputVal = key_val[2];
 			context.write(new Text(outputKey),new Text(outputVal));
 
