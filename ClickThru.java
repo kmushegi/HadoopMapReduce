@@ -138,14 +138,14 @@ public class ClickThru extends Configured implements Tool {
 						// parsedData.append(referrer);
 						// parsedData.append("\\x1f");
 						// parsedData.append(adId);
-						String oVStr = referrer+"\\x1f"+adId;
+						String oVStr = "{"+referrer+"\\x1f"+adId;
 						outputValue.set(oVStr);
 						System.out.println("Mapper Output - key:"+impressionId + ", val:" + oVStr);
 					} catch (JSONException e) {
 						e.printStackTrace();
 					}	
 				} else {
-					outputValue.set("1");
+					outputValue.set("{1");
 					System.out.println("Mapper Output - key:"+impressionId + ", val:1");
 				}
 				context.write(outputKey,outputValue);
@@ -198,9 +198,11 @@ public class ClickThru extends Configured implements Tool {
 			// String tempString = key.toString();
 			// Text newKey = new Text(tempString);
 			// String valueStr = val.toString();
+			String valueString =  val.toString();
+			String parsedString = valueString.substring(valueString.indexOf("{"));
 
-			System.out.println("val: " + val.toString());
-			String[] key_val = val.toString().split("(\x1f)|(\\x1e)");
+			System.out.println("val: " + parsedString);
+			String[] key_val = parsedString.split("(\x1f)|(\\x1e)");
 			System.out.printf("key_val length: %d", key_val.length);
 			//should produce array 0 - referrer, 1 - adId, 2 - click/imp bool
 
