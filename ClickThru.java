@@ -164,13 +164,14 @@ public class ClickThru extends Configured implements Tool {
 	}
 	//INPUT: [url, adID] -> 0 or 1
 	//OUTPUT: [url, adID] -> 0 or 1
-	public static class ClicksMapper extends Mapper<LongWritable,Text,Text,Text> {
+	public static class ClicksMapper extends Mapper<Text,Text,Text,Text> {
+
 
 		@Override
-		public void map(LongWritable key, Text val, Context context) throws IOException, InterruptedException {
-			String tempString = key.toString();
-			Text newKey = new Text(tempString);
-			context.write(newKey,val);
+		public void map(Text key, Text val, Context context) throws IOException, InterruptedException {
+			// String tempString = key.toString();
+			// Text newKey = new Text(tempString);
+			context.write(key,val);
 		}
 	}
 
