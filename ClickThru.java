@@ -187,20 +187,21 @@ public class ClickThru extends Configured implements Tool {
 	// OUTPUT: [url, adID] -> 0 or 1
 	public static class ClicksMapper extends Mapper<LongWritable,Text,Text,Text> {
 
-		private Text outputKey = new Text();
-		private Text outputValue = new Text();
+		private Text outputKey2 = new Text();
+		private Text outputValue2 = new Text();
 
 		@Override
 		public void map(LongWritable key, Text val, Context context) throws IOException, InterruptedException {
 			// String tempString = key.toString();
 			// Text newKey = new Text(tempString);
+			// String valueStr = val.toString();
 			String[] key_val = val.toString().split("\\x1e");
 			// String[] doubleKey = key_val[0].split("\\x1f");
 			// String key = (doubleKey[0] + ", " + doubleKey[1]);
 			// String key = key_val[0].replaceAll("\\x1f", ", ");
-			String keyF = key_val[0].replaceAll("\\x1f", ", ");
-			String valF = key_val[1];
-			context.write(outputKey.set((String)keyF),outputValue.set((String)valF));
+			// String keyF = key_val[0].replaceAll("\\x1f", ", ");
+			// String valF = key_val[1];
+			context.write(new Text(key_val[0].replaceAll("\\x1f", ", ")),new Text(key_val[1]));
 		}
 	}
 
