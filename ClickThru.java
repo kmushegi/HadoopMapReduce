@@ -29,24 +29,24 @@ public class ClickThru extends Configured implements Tool {
 		int res = ToolRunner.run(new Configuration(), new ClickThru(), args);
 		System.exit(res);
 	}
-	//this is causing an issue, because if the path (directory) already
-	//exists Hadoop will not let you run anything. need a work around
-	private static final String OUTPUT_PATH = "merged_out";
+
+
+	// private static final String OUTPUT_PATH = "merged_out";
 
 	@Override
 	public int run(String[] args) throws Exception {
-		if (args.length < 3) {
+		if (args.length < 4) {
 			System.err.println("Error: Wrong number of parameters");
-      		System.err.println("Expected: [impressions_merged] [clicks_merged] [out]");
+      		System.err.println("Expected: [impressions_merged] [clicks_merged] [combined] [ctr_out]");
       		System.exit(1);
 		}
-		jobDriver1(args);
+		jobDriver1(args[0], args[1], args[2]);
 		//i think job2 should be taking args[2] as a parameter
 		//in fact almost convinced its the issue with paths
-    	return jobDriver2(args[args.length-1]);
+    	return jobDriver2(args[2], args[3]);
 	}
 
-	public void jobDriver1(String[] args) throws Exception{
+	public void jobDriver1(String impressions_merged, String clicks_merged, String combined) throws Exception{
 		Configuration conf = getConf();
 
 		Job job = new Job(conf,"Impressions Unifier");
@@ -55,13 +55,12 @@ public class ClickThru extends Configured implements Tool {
 		job.setMapperClass(ClickThru.ImpressionsMapper.class);
 		job.setReducerClass(ClickThru.ImpressionsReducer.class);
 
-		Path[] paths = new Path[args.length-2];
-	    for(int i=0; i<args.length-2; i++){
-	    	paths[i] = new Path(args[i]);
-	    }
-	    FileInputFormat.setInputPaths(job, paths);
+		Path[] inputPaths = new Path[2];
+		inputPaths[1] = new Path(impressions_merged);
+		inputPaths[2] = new Path(clicks_merged);
+	    FileInputFormat.setInputPaths(job, inputPaths);
     	// FileInputFormat.addInputPath(job, new Path(inputPath));
-    	FileOutputFormat.setOutputPath(job, new Path(OUTPUT_PATH));
+    	FileOutputFormat.setOutputPath(job, new Path(combined_out));
 
     	job.setOutputKeyClass(Text.class);
     	job.setOutputValueClass(Text.class);
@@ -70,7 +69,7 @@ public class ClickThru extends Configured implements Tool {
     	return;
 	}
 
-	public int jobDriver2(String outputPath) throws Exception{
+	public int jobDriver2(String combined, String ctr_out) throws Exception{
 		Configuration conf = getConf();
 
 		Job job = new Job(conf,"Impressions Unifier");
@@ -79,8 +78,8 @@ public class ClickThru extends Configured implements Tool {
 		job.setMapperClass(ClickThru.ClicksMapper.class);
 		job.setReducerClass(ClickThru.ClicksReducer.class);
 
-    	FileInputFormat.addInputPath(job, new Path(OUTPUT_PATH));
-    	FileOutputFormat.setOutputPath(job, new Path(outputPath));
+    	FileInputFormat.addInputPath(job, new Path(combined));
+    	FileOutputFormat.setOutputPath(job, new Path(ctr_out));
 
     	job.setOutputKeyClass(Text.class);
     	job.setOutputValueClass(Text.class);
@@ -98,17 +97,14 @@ public class ClickThru extends Configured implements Tool {
 		public void map(LongWritable key, Text val, Context context) 
 							throws IOException, InterruptedException {
 
-			StringBuilder parsedData = new StringBuilder();
+			// StringBuilder parsedData = new StringBuilder();
 
 			//take the substring of the val from the { to the end so that we get
 			//a correct JSON String
 			String valueString = val.toString();
 			String jsnFormatString = valueString.substring(valueString.indexOf("{"));
 
-			String impressionId = null;
-			String referrer;
-			String adId;
-			String behavior;
+			String impressionId = "";
 				JSONObject jsnObj;
 				try {
 					System.out.println("Value of String is: "+jsnFormatString);
@@ -121,20 +117,22 @@ public class ClickThru extends Configured implements Tool {
 				outputKey.set(impressionId);
 				if(jsnObj.has("referrer")) {
 					try {
-						referrer = (String)jsnObj.get("referrer");
-						adId = (String)jsnObj.get("adId");
-						parsedData.append(referrer);
-						parsedData.append("\\x1f");
-						parsedData.append(adId);
-						outputValue.set(parsedData.toString());
+						String referrer = (String)jsnObj.get("referrer");
+						String adId = (String)jsnObj.get("adId");
+						val = (referrer+"\\x1f"+adId);
+						// parsedData.append(referrer);
+						// parsedData.append("\\x1f");
+						// parsedData.append(adId);
+						outputValue.set(val);
 						context.write(outputKey,outputValue);
+						System.out.println("Mapper Output - key:"+impressionID + ", val:" + val);
 					} catch (JSONException e) {
 						e.printStackTrace();
 					}	
 				} else {
-					behavior = "1";
-					outputValue.set(behavior);
+					outputValue.set("1");
 					context.write(outputKey,outputValue);
+					System.out.println("Mapper Output - key:"+impressionID + ", val:1");
 				}
 		}
 	}
@@ -148,22 +146,20 @@ public class ClickThru extends Configured implements Tool {
 
 				
 				int impressionsTotal = 0;
-				String url = null;
-				String adId =null;
+				String newKeyString = "";
 				for(Text value : values) {
-					String splitInput[] = value.toString().split("(\\x1f)");
-					if(splitInput.length == 1) {
-						impressionsTotal = 1;
+					String valueStr = value.toString();
+					if(value.toString().contains("(\\x1f)")){
+						newKeyString = valueStr;
 					} else {
-						url = splitInput[0];
-						adId = splitInput[1];
+						impressionsTotal = 1;
 					}
 				}
-				String newKeyString = (url+"\\x1f"+adId);
-				String val = Integer.toString(impressionsTotal);
-				Text newKey = new Text(newKeyString);
-				Text outputValue = new Text(val);
-				context.write(newKey,outputValue);
+				// String newKeyString = (url+"\\x1f"+adId);
+				// String val = String.valueOf(impressionsTotal);
+				// Text newKey = new Text(newKeyString);
+				// Text outputValue = new Text(val);
+				context.write(new Text(newKeyString),new Text(String.valueOf(impressionsTotal)));
 		}
 	}
 	//INPUT: [url, adID] -> 0 or 1
