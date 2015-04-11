@@ -173,7 +173,7 @@ public class ClickThru extends Configured implements Tool {
 				// String val = String.valueOf(impressionsTotal);
 				// Text newKey = new Text(newKeyString);
 				// Text outputValue = new Text(val);
-				context.write(new Text(newKeyString)),new Text(keyWithValueString);
+				context.write(new Text(newKeyString),new Text(keyWithValueString));
 
 				// context.write(new Text(newKeyString),new Text(String.valueOf(impressionsTotal)));
 		}
