@@ -151,7 +151,7 @@ public class ClickThru extends Configured implements Tool {
 	}
 	
 	//add values of [impression ID, url, adID]: 0 +1 = 1 if clicked through, or just 0 if only impression
-	public static class ImpressionsReducer extends Reducer<Text,Text,Text,Text> {
+	public static class ImpressionsReducer extends Reducer<Text,Text,LongWritable,Text> {
 
 		@Override
 		public void reduce(Text key, Iterable<Text> values, Context context) 
@@ -173,7 +173,7 @@ public class ClickThru extends Configured implements Tool {
 				// String val = String.valueOf(impressionsTotal);
 				// Text newKey = new Text(newKeyString);
 				// Text outputValue = new Text(val);
-				context.write(new Text(newKeyString),new Text(keyWithValueString));
+				context.write(new LongWritable(0),new Text(keyWithValueString));
 
 				// context.write(new Text(newKeyString),new Text(String.valueOf(impressionsTotal)));
 		}
