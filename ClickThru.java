@@ -131,12 +131,14 @@ public class ClickThru extends Configured implements Tool {
 				if(jsnObj.has("referrer")) {
 					try {
 						String referrer = (String)jsnObj.get("referrer");
+						System.out.println("referrer: " + referrer);
 						String adId = (String)jsnObj.get("adId");
+						System.out.println("adId: " + adID);
 						// String val = (referrer+"\\x1f"+adId);
 						// parsedData.append(referrer);
 						// parsedData.append("\\x1f");
 						// parsedData.append(adId);
-						String oVStr = (referrer+"\\x1f"+adId);
+						String oVStr = referrer+"\\x1f"+adId;
 						outputValue.set(oVStr);
 						System.out.println("Mapper Output - key:"+impressionId + ", val:" + oVStr);
 					} catch (JSONException e) {
