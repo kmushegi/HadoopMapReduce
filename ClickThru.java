@@ -119,11 +119,11 @@ public class ClickThru extends Configured implements Tool {
 					try {
 						String referrer = (String)jsnObj.get("referrer");
 						String adId = (String)jsnObj.get("adId");
-						String val = (referrer+"\\x1f"+adId);
+						// String val = (referrer+"\\x1f"+adId);
 						// parsedData.append(referrer);
 						// parsedData.append("\\x1f");
 						// parsedData.append(adId);
-						outputValue.set(val);
+						outputValue.set(referrer+"\\x1f"+adId);
 						context.write(outputKey,outputValue);
 						System.out.println("Mapper Output - key:"+impressionId + ", val:" + val);
 					} catch (JSONException e) {
