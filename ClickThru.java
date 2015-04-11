@@ -211,7 +211,7 @@ public class ClickThru extends Configured implements Tool {
 			// String key = key_val[0].replaceAll("\\x1f", ", ");
 			// String keyF = key_val[0].replaceAll("\\x1f", ", ");
 			// String valF = key_val[1];
-			String outputKey = key_val[0] + key_val[1];
+			String outputKey = key_val[0] + ", " + key_val[1];
 			String outputVal = key_val[2];
 			context.write(new Text(outputKey),new Text(outputVal));
 
@@ -229,14 +229,14 @@ public class ClickThru extends Configured implements Tool {
 		@Override
 		public void reduce(Text key, Iterable<Text> values, Context context)
 							throws IOException, InterruptedException {
-				int totalImpressions = 0;
-				int totalClicks = 0;
+				float totalImpressions = 0.0;
+				float totalClicks = 0.0;
 				for(Text value : values){
-					totalImpressions++;
-					totalClicks += Integer.parseInt(value.toString());
+					totalImpressions+= 1.0;
+					totalClicks += Float.parseFloat(value.toString());
 				}
 				Text clickThroughRate = new Text();
-	       		clickThroughRate.set(Integer.toString(totalClicks/totalImpressions));
+	       		clickThroughRate.set(Float.toString(totalClicks/totalImpressions));
 	        	context.write(key, clickThroughRate);
 		}
 	}
