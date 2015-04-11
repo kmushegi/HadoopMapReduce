@@ -30,6 +30,18 @@ public class ClickThru extends Configured implements Tool {
 		System.exit(res);
 	}
 
+	// public class TextTextInputFormat extends
+ //    FileInputFormat<Text, Text> {
+
+	//   public RecordReader<Text, Text> getRecordReader(
+	//       InputSplit input, JobConf job, Reporter reporter)
+	//       throws IOException {
+
+	//     reporter.setStatus(input.toString());
+	//     return new CombinerRecordReader(job, (FileSplit)input);
+	//   }
+	// }
+
 
 	// private static final String OUTPUT_PATH = "merged_out";
 
@@ -78,6 +90,7 @@ public class ClickThru extends Configured implements Tool {
 		job.setMapperClass(ClickThru.ClicksMapper.class);
 		job.setReducerClass(ClickThru.ClicksReducer.class);
 
+		FileInputFormat.setInputFormat
     	FileInputFormat.addInputPath(job, new Path(combined));
     	FileOutputFormat.setOutputPath(job, new Path(ctr_out));
 
@@ -155,23 +168,36 @@ public class ClickThru extends Configured implements Tool {
 						impressionsTotal = 1;
 					}
 				}
+				String keyWithValueString = (newKeyString+"\\x1e"+String.valueOf(impressionsTotal))
 				// String newKeyString = (url+"\\x1f"+adId);
 				// String val = String.valueOf(impressionsTotal);
 				// Text newKey = new Text(newKeyString);
 				// Text outputValue = new Text(val);
-				context.write(new Text(newKeyString),new Text(String.valueOf(impressionsTotal)));
+				context.write(new Text(newKeyString),new Text(keyWithValueString);
+
+				// context.write(new Text(newKeyString),new Text(String.valueOf(impressionsTotal)));
 		}
 	}
-	//INPUT: [url, adID] -> 0 or 1
-	//OUTPUT: [url, adID] -> 0 or 1
-	public static class ClicksMapper extends Mapper<Text,Text,Text,Text> {
+	//OLD vvvv
+	// INPUT: [url, adID] -> 0 or 1 
+	// OUTPUT: [url, adID] -> 0 or 1
 
+	//NEW vvvv
+	// INPUT: [#] -> url\x1fadID\x1e0 or 1
+	// OUTPUT: [url, adID] -> 0 or 1
+	public static class ClicksMapper extends Mapper<LongWritable,Text,Text,Text> {
+
+		private Text outputKey = new Text();
+		private Text outputValue = new Text();
 
 		@Override
-		public void map(Text key, Text val, Context context) throws IOException, InterruptedException {
+		public void map(LongWritable key, Text val, Context context) throws IOException, InterruptedException {
 			// String tempString = key.toString();
 			// Text newKey = new Text(tempString);
-			context.write(key,val);
+			String[] key_val = val.toString().split("\\x1e");
+			String doubleKey = key_val[0].split("\\x1f");
+			String key = (doubleKey[0] + ", " + doubleKey[1]);
+			context.write(outputKey.set(key),outputValue.set(key_val[1]));
 		}
 	}
 
