@@ -200,7 +200,7 @@ public class ClickThru extends Configured implements Tool {
 			// String valueStr = val.toString();
 
 			System.out.println("val: " + val.toString());
-			String[] key_val = val.toString().split("(\\x1f)|(\\x1e)");
+			String[] key_val = val.toString().split("(\x1f)|(\\x1e)");
 			System.out.printf("key_val length: %d", key_val.length);
 			//should produce array 0 - referrer, 1 - adId, 2 - click/imp bool
 
