@@ -136,17 +136,17 @@ public class ClickThru extends Configured implements Tool {
 						// parsedData.append(referrer);
 						// parsedData.append("\\x1f");
 						// parsedData.append(adId);
-						outputValue.set(referrer+"\\x1f"+adId);
-						context.write(outputKey,outputValue);
-						System.out.println("Mapper Output - key:"+impressionId + ", val:" + val);
+						String oVStr = (referrer+"\\x1f"+adId);
+						outputValue.set(oVStr);
+						System.out.println("Mapper Output - key:"+impressionId + ", val:" + oVStr);
 					} catch (JSONException e) {
 						e.printStackTrace();
 					}	
 				} else {
 					outputValue.set("1");
-					context.write(outputKey,outputValue);
 					System.out.println("Mapper Output - key:"+impressionId + ", val:1");
 				}
+				context.write(outputKey,outputValue);
 		}
 	}
 	
