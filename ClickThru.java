@@ -190,23 +190,32 @@ public class ClickThru extends Configured implements Tool {
 	// OUTPUT: [url, adID] -> 0 or 1
 	public static class ClicksMapper extends Mapper<LongWritable,Text,Text,Text> {
 
-		private Text outputKey2 = new Text();
-		private Text outputValue2 = new Text();
+		// private Text outputKey2 = new Text();
+		// private Text outputValue2 = new Text();
 
 		@Override
 		public void map(LongWritable key, Text val, Context context) throws IOException, InterruptedException {
 			// String tempString = key.toString();
 			// Text newKey = new Text(tempString);
 			// String valueStr = val.toString();
-			String[] key_val = val.toString().split("\\x1e");
+
+			System.out.println("val: " + val.toString());
+			String[] key_val = val.toString().split("(\\x1f)|(\\\x1e)");
+			System.out.printf("key_val length: %d", key_val.length);
+			//should produce array 0 - referrer, 1 - adId, 2 - click/imp bool
+
 			// String[] doubleKey = key_val[0].split("\\x1f");
 			// String key = (doubleKey[0] + ", " + doubleKey[1]);
 			// String key = key_val[0].replaceAll("\\x1f", ", ");
 			// String keyF = key_val[0].replaceAll("\\x1f", ", ");
 			// String valF = key_val[1];
-			if(key_val.length==2){
-				context.write(new Text(key_val[0].replaceAll("\\x1f", ", ")),new Text(key_val[1]));
-			}
+			String outputKey = key_val[0] + key_val[1];
+			String outputVal = key_val[2];
+			context.write(new Text(outputKey),new Text(outputVal));
+
+			// if(key_val.length==3){
+			// 	context.write(new Text(key_val[0].replaceAll("\\x1f", ", ")),new Text(key_val[1]));
+			// }
 			
 		}
 	}
