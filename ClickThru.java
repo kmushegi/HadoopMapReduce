@@ -164,6 +164,7 @@ public class ClickThru extends Configured implements Tool {
 				String newKeyString = "";
 				for(Text value : values) {
 					String valueStr = value.toString();
+					System.out.println("valueStr: "+ valueStr);
 					if(value.toString().contains("\\x1f")){
 						newKeyString = valueStr;
 					} else {
@@ -203,7 +204,10 @@ public class ClickThru extends Configured implements Tool {
 			// String key = key_val[0].replaceAll("\\x1f", ", ");
 			// String keyF = key_val[0].replaceAll("\\x1f", ", ");
 			// String valF = key_val[1];
-			context.write(new Text(key_val[0].replaceAll("\\x1f", ", ")),new Text(key_val[1]));
+			if(key_val.length==2){
+				context.write(new Text(key_val[0].replaceAll("\\x1f", ", ")),new Text(key_val[1]));
+			}
+			
 		}
 	}
 
