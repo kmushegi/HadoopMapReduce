@@ -30,21 +30,6 @@ public class ClickThru extends Configured implements Tool {
 		System.exit(res);
 	}
 
-	// public class TextTextInputFormat extends
- //    FileInputFormat<Text, Text> {
-
-	//   public RecordReader<Text, Text> getRecordReader(
-	//       InputSplit input, JobConf job, Reporter reporter)
-	//       throws IOException {
-
-	//     reporter.setStatus(input.toString());
-	//     return new CombinerRecordReader(job, (FileSplit)input);
-	//   }
-	// }
-
-
-	// private static final String OUTPUT_PATH = "merged_out";
-
 	@Override
 	public int run(String[] args) throws Exception {
 		if (args.length < 4) {
@@ -53,8 +38,6 @@ public class ClickThru extends Configured implements Tool {
       		System.exit(1);
 		}
 		jobDriver1(args[0], args[1], args[2]);
-		//i think job2 should be taking args[2] as a parameter
-		//in fact almost convinced its the issue with paths
     	return jobDriver2(args[2], args[3]);
 	}
 
@@ -71,7 +54,6 @@ public class ClickThru extends Configured implements Tool {
 		inputPaths[0] = new Path(impressions_merged);
 		inputPaths[1] = new Path(clicks_merged);
 	    FileInputFormat.setInputPaths(job, inputPaths);
-    	// FileInputFormat.addInputPath(job, new Path(inputPath));
     	FileOutputFormat.setOutputPath(job, new Path(combined));
 
     	job.setOutputKeyClass(Text.class);
@@ -90,7 +72,6 @@ public class ClickThru extends Configured implements Tool {
 		job.setMapperClass(ClickThru.ClicksMapper.class);
 		job.setReducerClass(ClickThru.ClicksReducer.class);
 
-		// FileInputFormat.setInputFormat
     	FileInputFormat.addInputPath(job, new Path(combined));
     	FileOutputFormat.setOutputPath(job, new Path(ctr_out));
 
@@ -101,6 +82,7 @@ public class ClickThru extends Configured implements Tool {
 
 	}
 	//map [impression ID, url, adID] key to either 0 (impressions collection) or 1 (clicks collection) val
+	//will output either [impressionID, url/x1fadId] or [impressionID, 1] if it's a click
 	public static class ImpressionsMapper extends Mapper<LongWritable,Text,Text,Text> {
 
 		private Text outputKey = new Text();
@@ -109,8 +91,6 @@ public class ClickThru extends Configured implements Tool {
 		@Override
 		public void map(LongWritable key, Text val, Context context) 
 							throws IOException, InterruptedException {
-
-			// StringBuilder parsedData = new StringBuilder();
 
 			//take the substring of the val from the { to the end so that we get
 			//a correct JSON String
@@ -129,30 +109,24 @@ public class ClickThru extends Configured implements Tool {
 				}
 				outputKey.set(impressionId);
 				if(jsnObj.has("referrer")) {
+					//Impression
 					try {
 						String referrer = (String)jsnObj.get("referrer");
-						System.out.println("referrer: " + referrer);
 						String adId = (String)jsnObj.get("adId");
-						System.out.println("adId: " + adId);
-						// String val = (referrer+"\\x1f"+adId);
-						// parsedData.append(referrer);
-						// parsedData.append("\\x1f");
-						// parsedData.append(adId);
-						String oVStr = "{"+referrer+"/x1f"+adId;
+						String oVStr = "{"+referrer+"/x1f"+adId; //add { to use as start character when parsing in second map job
 						outputValue.set(oVStr);
-						System.out.println("Mapper Output - key:"+impressionId + ", val:" + oVStr);
 					} catch (JSONException e) {
 						e.printStackTrace();
 					}	
 				} else {
+					//Click
 					outputValue.set("{1");
-					System.out.println("Mapper Output - key:"+impressionId + ", val:1");
 				}
 				context.write(outputKey,outputValue);
 		}
 	}
 	
-	//add values of [impression ID, url, adID]: 0 +1 = 1 if clicked through, or just 0 if only impression
+	//get url and adid values, if there is a value that does not contain url and adId values set clickThrough = 1
 	public static class ImpressionsReducer extends Reducer<Text,Text,LongWritable,Text> {
 
 		@Override
@@ -160,70 +134,43 @@ public class ClickThru extends Configured implements Tool {
 							throws IOException, InterruptedException {
 
 				
-				int impressionsTotal = 0;
+				int clickThrough = 0;
 				String newKeyString = "";
 				for(Text value : values) {
 					String valueStr = value.toString();
 					System.out.println("valueStr: "+ valueStr);
-					if(value.toString().contains("/x1f")){
+					if(value.toString().contains("/x1f")){ //note: changed from \\x1f to /x1f because of .split() complications
 						newKeyString = valueStr;
 					} else {
-						impressionsTotal = 1;
+						clickThrough = 1;
 					}
 				}
-				String keyWithValueString = (newKeyString+"/x1e"+String.valueOf(impressionsTotal));
-				// String newKeyString = (url+"\\x1f"+adId);
-				// String val = String.valueOf(impressionsTotal);
-				// Text newKey = new Text(newKeyString);
-				// Text outputValue = new Text(val);
+				String keyWithValueString = (newKeyString+"/x1e"+String.valueOf(clickThrough));
 				context.write(new LongWritable(0),new Text(keyWithValueString));
-
-				// context.write(new Text(newKeyString),new Text(String.valueOf(impressionsTotal)));
 		}
 	}
-	//OLD vvvv
-	// INPUT: [url, adID] -> 0 or 1 
-	// OUTPUT: [url, adID] -> 0 or 1
 
-	//NEW vvvv
-	// INPUT: [#] -> url\x1fadID\x1e0 or 1
+	// INPUT: [#] -> url/x1fadID/x1e0 or 1
 	// OUTPUT: [url, adID] -> 0 or 1
 	public static class ClicksMapper extends Mapper<LongWritable,Text,Text,Text> {
 
-		// private Text outputKey2 = new Text();
-		// private Text outputValue2 = new Text();
-
 		@Override
 		public void map(LongWritable key, Text val, Context context) throws IOException, InterruptedException {
-			// String tempString = key.toString();
-			// Text newKey = new Text(tempString);
-			// String valueStr = val.toString();
 			String valueString =  val.toString();
 			String parsedString = valueString.substring(valueString.indexOf("{")+1);
 
 			System.out.println("val: " + parsedString);
 			String[] key_val = parsedString.split("(/x1f)|(/x1e)");
 			System.out.printf("key_val length: %d", key_val.length);
-			//should produce array 0 - referrer, 1 - adId, 2 - click/imp bool
-
-			// String[] doubleKey = key_val[0].split("\\x1f");
-			// String key = (doubleKey[0] + ", " + doubleKey[1]);
-			// String key = key_val[0].replaceAll("\\x1f", ", ");
-			// String keyF = key_val[0].replaceAll("\\x1f", ", ");
-			// String valF = key_val[1];
-			String outputKey = key_val[0] + ", " + key_val[1];
+			//should produce array 0 - referrer, 1 - adId, 2 - clicked boolean
+			String outputKey = "["+key_val[0] + ", " + key_val[1]+"]";
 			String outputVal = key_val[2];
 			context.write(new Text(outputKey),new Text(outputVal));
-
-			// if(key_val.length==3){
-			// 	context.write(new Text(key_val[0].replaceAll("\\x1f", ", ")),new Text(key_val[1]));
-			// }
-			
 		}
 	}
 
 	//INPUT: [url, adID] -> vals[0,1,1...]
-	//OUTPUT: [url, adID] -> 1 count / totalCount = CTR
+	//OUTPUT: [url, adID] -> clickCount / totalCount = CTR (float)
 	public static class ClicksReducer extends Reducer<Text,Text,Text,Text> {
 
 		@Override
